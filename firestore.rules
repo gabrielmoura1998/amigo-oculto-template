@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signed()   { return request.auth != null; }
+    function email()    { return request.auth.token.email.lower(); }
+    function cfg()      { return get(/databases/$(db)/documents/config/app).data; }
+    function verified() { return request.auth.token.email_verified == true; }
+    // Só entra quem tem o e-mail liberado pelos admins
+    function allowed()  { return signed() && verified() && email() in cfg().allowed; }
+    function isAdmin()  { return allowed() && email() in cfg().admins; }
+    function locked()   { return cfg().finalLocked == true; }
+    function me(uid)    { return allowed() && request.auth.uid == uid; }
+    function myResult() { return get(/databases/$(db)/documents/results/$(request.auth.uid)).data; }
+
+    // Configuração geral. Admin só mexe na lista de e-mails e de admins.
+    match /config/app {
+      allow read: if allowed();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['allowed', 'admins'])
+        && request.resource.data.admins.size() >= 1
+        && request.resource.data.admins.size() <= 3
+        && request.resource.data.allowed.size() <= 20
+        && request.resource.data.admins.toSet().difference(request.resource.data.allowed.toSet()).size() == 0
+        && (!locked() || request.resource.data.allowed == resource.data.allowed);
+    }
+
+    // Nome e se já está pronto pro sorteio: todo mundo vê (precisa pra aba Intimidade)
+    match /people/{uid} {
+      allow read: if allowed();
+      allow create: if me(uid) && !locked()
+        && request.resource.data.keys().hasOnly(['nome', 'ready']);
+      allow update: if me(uid)
+        && request.resource.data.keys().hasOnly(['nome', 'ready']);
+      allow delete: if isAdmin() && !locked() && request.auth.uid != uid;
+    }
+
+    // Perfil completo: dono, admins e quem tirou essa pessoa no sorteio oficial
+    match /users/{uid} {
+      allow read: if allowed() && (
+        request.auth.uid == uid || isAdmin() ||
+        (exists(/databases/$(db)/documents/results/$(request.auth.uid)) && myResult().receiver == uid)
+      );
+      allow create: if me(uid) && !locked()
+        && request.resource.data.email == email()
+        && request.resource.data.cats.size() <= 5;
+      allow update: if me(uid)
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.metodo == resource.data.metodo
+        && request.resource.data.cats.size() <= 5;
+      allow delete: if isAdmin() && !locked() && request.auth.uid != uid;
+    }
+
+    // Intimidade: só o próprio dono lê e escreve. Nem admin vê. Tranca depois do oficial.
+    match /intim/{uid} {
+      allow read: if me(uid);
+      allow write: if me(uid) && !locked();
+      allow delete: if isAdmin() && !locked() && request.auth.uid != uid;
+    }
+
+    // Escritos só pelo script de sorteio (GitHub Actions, com chave de servidor)
+    match /tests/{d}     { allow read: if allowed(); allow delete: if isAdmin() && !locked(); }
+    match /results/{uid} { allow read: if me(uid);   allow write: if false; }
+    match /positions/{uid} { allow read: if me(uid); allow write: if false; }
+    match /audit/{d}     { allow read: if isAdmin(); allow write: if false; }
+    match /private/{d}   { allow read, write: if false; }
+  }
+}

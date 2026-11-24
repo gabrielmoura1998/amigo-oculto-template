@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#9e1b2e">
+<title>Amigo Oculto 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: festivo, caloroso, de turma de amigos no fim do ano
+   IDEA: um cartão de Natal que abre e vira o app do amigo oculto
+   PICTURE: presente embrulhado com etiqueta "?" sob neve caindo
+   COLOUR/TYPE: vermelho-natal dominante, verde-pinheiro de apoio, dourado de acento; Baloo 2 + Nunito
+   LAYOUT: coluna única mobile-first, barra de abas embaixo; até 520px centralizado no desktop */
+:root{color-scheme:light dark;
+--red:#9e1b2e;--red2:#c22a3c;--pine:#1f5c46;--gold:#f2b84b;
+--bg:light-dark(#fbf6f1,#170c0f);--card:light-dark(#ffffff,#241417);--ink:light-dark(#2a1215,#f7eeee);
+--muted:light-dark(#7a5e60,#c2a9ab);--line:light-dark(#efe1da,#3a2427);--soft:light-dark(#f6ebe5,#2d1a1d)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Nunito,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+@media(min-width:620px){body{background:light-dark(#efe3dc,#0e0709)}.wrap{box-shadow:0 0 0 1px var(--line),0 30px 80px -40px #0006}}
+h1,h2,h3{font-family:"Baloo 2",system-ui,sans-serif;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,10vw,46px);font-weight:800}
+h2{font-size:28px;font-weight:800}
+h3{font-size:19px;font-weight:600}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ---------- Login ---------- */
+.hero{position:relative;background:radial-gradient(120% 90% at 50% 0%,var(--red2),var(--red) 60%,#7a1222);color:#fff;
+  padding:calc(env(safe-area-inset-top) + 26px) 22px 0;overflow:hidden;border-radius:0 0 32px 32px}
+.hero .brand{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;opacity:.9}
+.hero h1{margin-top:14px}
+.hero p{opacity:.85;margin-top:6px;font-size:17px}
+.gift{display:block;width:100%;max-width:300px;height:220px;margin:6px auto 0}
+.snow{position:absolute;inset:0;pointer-events:none}
+.snow i{position:absolute;top:-10px;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.75;animation:fall linear infinite}
+@keyframes fall{to{transform:translate3d(20px,420px,0)}}
+@media(prefers-reduced-motion:reduce){.snow i{animation:none;display:none}}
+.auth{padding:22px 22px 28px;display:flex;flex-direction:column;gap:14px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:14px;padding:4px}
+.tabs button{border:0;background:none;min-height:44px;border-radius:11px;font-weight:700;color:var(--muted)}
+.tabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px #0002}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;border-radius:14px;border:0;font-weight:700;font-size:16px;width:100%}
+.btn.pri{background:var(--red);color:#fff}
+.btn.pri:active{background:#841526}
+.btn.ghost{background:var(--card);border:1.5px solid var(--line)}
+.btn.small{min-height:44px;width:auto;padding:0 16px;font-size:15px}
+.sep{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px}
+.sep::before,.sep::after{content:"";flex:1;height:1px;background:var(--line)}
+label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+input,textarea,select{width:100%;min-height:50px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);padding:12px 14px;font-size:16px}
+textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--red2);outline:none}
+.err{color:var(--red2);font-weight:700;font-size:14px;min-height:1em}
+.demo{font-size:13px;color:var(--muted);text-align:center;line-height:1.4}
+.demo b{color:var(--ink)}
+
+/* ---------- App ---------- */
+.top{background:var(--red);color:#fff;padding:calc(env(safe-area-inset-top) + 16px) 20px 18px;display:flex;align-items:center;gap:12px;border-radius:0 0 24px 24px}
+.top .t{flex:1}
+.top small{opacity:.8;font-size:13px}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-family:"Baloo 2";font-size:19px;flex:none;color:#fff}
+.av.lg{width:76px;height:76px;font-size:32px}
+main{flex:1;padding:20px 18px 110px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.field{display:flex;flex-direction:column;gap:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:999px;padding:6px 6px 6px 12px;font-weight:600;font-size:14px}
+.chip button{border:0;background:var(--card);width:28px;height:28px;border-radius:50%;line-height:1;font-size:16px;color:var(--muted)}
+.chip.ro{padding:6px 12px}
+.row{display:flex;gap:8px}
+.row input{flex:1}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stat b{display:block;font-family:"Baloo 2";font-size:28px;line-height:1;color:var(--red2)}
+.stat span{font-size:13px;color:var(--muted)}
+.people{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.person{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;min-height:72px;width:100%;text-align:left}
+.person .n{flex:1;display:flex;flex-direction:column}
+.person .n b{font-size:16px}
+.person .n span{font-size:13px;color:var(--muted)}
+.tag{font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.tag.adm{background:var(--gold);color:#3a2400}
+.tag.g{background:light-dark(#e8f0fe,#1c2a44);color:light-dark(#1a56c4,#9cbcff)}
+.tag.e{background:light-dark(#e6f2ec,#163126);color:light-dark(#1f5c46,#8fd3b3)}
+.tag.warn{background:var(--soft);color:var(--muted)}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.search{position:relative}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--pine);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1}
+nav.bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--card);border-top:1px solid var(--line);
+  display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:10}
+nav.bar button{flex:1;border:0;background:none;min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;font-weight:700;color:var(--muted);line-height:1.15;text-align:center;padding:0 2px}
+nav.bar button.on{color:var(--red2);background:var(--soft)}
+nav.bar svg{width:24px;height:24px}
+
+/* ---------- Sheet ---------- */
+.veil{position:fixed;inset:0;background:#0008;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:520px;max-height:90dvh;overflow:auto;border-radius:26px 26px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 4px}
+.kv{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:8px 12px;font-size:15px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.danger{color:var(--red2);border-color:light-dark(#f2c9cf,#5a2229)}
+.note{font-size:13px;color:var(--muted);text-align:center}
+.lead{color:var(--muted);font-size:16px}
+.meter{height:12px;border-radius:6px;background:var(--soft);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:6px;background:var(--pine);transition:width .3s}
+.meter.low i{background:var(--gold)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.rate{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
+.rate .who{display:flex;align-items:center;gap:12px}
+.rate .who b{flex:1}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.seg button{min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-weight:700;font-size:14px;color:var(--muted)}
+.seg button.on[data-v="2"]{background:var(--red);border-color:var(--red);color:#fff}
+.seg button.on[data-v="1"]{background:var(--gold);border-color:var(--gold);color:#3a2400}
+.seg button.on[data-v="0"]{background:var(--soft);border-color:var(--muted);color:var(--ink)}
+.reveal{background:linear-gradient(150deg,var(--pine),#143f30);color:#fff;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.reveal h2{color:#fff}
+.reveal .lead{color:#ffffffcc}
+.reveal .btn{background:var(--gold);color:#3a2400}
+.reveal .chip{background:#ffffff22;color:#fff}
+.reveal .kv dt{color:#ffffffaa}
+.reveal .tag{background:#ffffff26;color:#fff}
+.ok{color:var(--pine);font-weight:800}
+.bad{color:var(--red2);font-weight:800}
+.pend{display:flex;flex-wrap:wrap;gap:6px}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.checks li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.checks .ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;background:var(--pine)}
+.checks .ic.x{background:var(--red2)}
+.checks.anim li{opacity:0;animation:pop .35s ease forwards}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.checks.anim li{animation:none;opacity:1}}
+.code{font-family:ui-monospace,Menlo,monospace;font-weight:700;background:var(--soft);border-radius:8px;padding:3px 8px;white-space:nowrap;font-size:14px}
+.pairs{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.pair{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--line);border-radius:12px;font-size:14px}
+.pair .arr{color:var(--muted)}
+.pair .nm{color:var(--muted);font-size:13px}
+.pair .tag{margin-left:auto}
+.cyc{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.switch input{width:52px;min-height:30px;height:30px;accent-color:var(--red)}
+.testbar{background:var(--gold);color:#3a2400;font-weight:800;text-align:center;padding:8px;border-radius:12px;font-size:14px}
+.reveal .code{background:#ffffff22;color:#fff}
+.top .out{border:0;background:#ffffff22;color:#fff;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.top .out svg{width:22px;height:22px}
+.cats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media(max-width:350px){.cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cat{min-height:64px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:14px;line-height:1.2;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.cat i{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-family:"Baloo 2";font-weight:800;font-size:15px;color:#fff}
+.cat.on{background:var(--red);border-color:var(--red);color:#fff}
+.cat.on i{background:#fff!important;color:var(--red)}
+.cat:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+a.btn{text-decoration:none;color:inherit}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.steps b{white-space:nowrap}
+.det{display:flex;flex-direction:column;gap:10px}
+.det h3{display:flex;align-items:center;gap:10px}
+.det h3 i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-weight:800;color:#fff;font-size:16px}
+.ideas{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.idea{border:1.5px dashed var(--line);background:none;border-radius:999px;min-height:36px;padding:4px 12px;font-size:14px;font-weight:600;color:var(--ink)}
+.gcat{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid #ffffff22}
+.gcat b{display:flex;align-items:center;gap:8px}
+.gcat b i{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-size:13px;background:#fff!important;color:var(--pine)}
+.chain{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.chain li{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px}
+.chain .num{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#3a2400;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.chain .arr{color:var(--muted);font-size:14px}
+.reveal .chain .arr{color:#ffffffaa}
+.lock{display:inline-flex;align-items:center;gap:6px;background:var(--pine);color:#fff;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px;align-self:flex-start}
+.testtag{display:inline-flex;background:var(--gold);color:#3a2400;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px;align-self:flex-start}
+.sec{display:flex;flex-direction:column;gap:12px;padding-top:14px;border-top:1px solid var(--line)}
+.poscard{display:flex;align-items:center;gap:16px;background:var(--gold);color:#3a2400;border-radius:22px;padding:18px 20px}
+.poscard .big{flex:none;width:72px;height:72px;border-radius:50%;background:#fff;color:var(--red);display:grid;place-items:center;font-family:"Baloo 2";font-weight:800;font-size:clamp(30px,9vw,40px);line-height:1}
+.poscard h3{font-size:20px}.poscard p{font-size:15px;margin-top:2px}
+.poscard.wait{background:var(--card);color:var(--ink);border:1.5px dashed var(--line)}
+.poscard.wait .big{background:var(--soft);color:var(--muted)}
+.sheetcat{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast" role="status"></div>
+<script type="module">
+
+// ================== CONFIGURAÇÃO DO FIREBASE ==================
+// Cola aqui o objeto do console: Configurações do projeto → Seus apps → Web → firebaseConfig.
+// Essas chaves são públicas por natureza; quem protege os dados são as regras do Firestore.
+const firebaseConfig = {
+  apiKey: "COLE_AQUI",
+  authDomain: "COLE_AQUI.firebaseapp.com",
+  projectId: "COLE_AQUI",
+  appId: "COLE_AQUI"
+};
+// Link do workflow de sorteio. No GitHub Pages ele se descobre sozinho (usuario.github.io/repo).
+const ACTIONS_URL = (() => { const u = location.hostname.endsWith('github.io') ? location.hostname.split('.')[0] : 'SEU_USUARIO';
+  const r = location.pathname.split('/').filter(Boolean)[0] || 'amigo-oculto'; return `https://github.com/${u}/${r}/actions/workflows/sorteio.yml`; })();
+// ==============================================================
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile, signOut, reload } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, serverTimestamp, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const fb = initializeApp(firebaseConfig);
+const auth = getAuth(fb), db = getFirestore(fb);
+
+const CATS=[
+ {k:'roupas',n:'Roupas',c:'#9e1b2e',i:['Camisa de personagem','Moletom','Bermuda']},
+ {k:'calcados',n:'Calçados',c:'#b8462e',i:['Tênis casual','Chinelo','Meias divertidas']},
+ {k:'perfumaria',n:'Perfumaria',c:'#7b3d8f',i:['Perfume amadeirado','Body splash','Desodorante']},
+ {k:'beleza',n:'Beleza e skincare',c:'#c2477a',i:['Hidratante','Kit skincare','Maquiagem']},
+ {k:'acessorios',n:'Acessórios',c:'#c27a12',i:['Boné','Relógio','Brinco','Carteira']},
+ {k:'games',n:'Jogos eletrônicos',c:'#2f5fa8',i:['Gift card','Controle','Jogo de PS5']},
+ {k:'tabuleiro',n:'Jogos de tabuleiro',c:'#1f5c46',i:['Jogo de cartas','Quebra-cabeça','Jogo cooperativo']},
+ {k:'livros',n:'Livros',c:'#5b6b2f',i:['Ficção científica','Romance','Mangá']},
+ {k:'musica',n:'Música',c:'#2b7a78',i:['Camisa de banda','Vinil','Fone de ouvido']},
+ {k:'filmes',n:'Filmes e séries',c:'#4a4e9a',i:['Funko','Pôster','Caneca temática']},
+ {k:'cozinha',n:'Cozinha e bebidas',c:'#8a5a2b',i:['Café especial','Cerveja artesanal','Kit churrasco']},
+ {k:'casa',n:'Casa e decoração',c:'#6b7f3a',i:['Planta','Vela aromática','Luminária']},
+ {k:'esportes',n:'Esportes',c:'#0f7a4f',i:['Camisa de time','Garrafa térmica','Toalha de academia']},
+ {k:'tech',n:'Tecnologia',c:'#3d5a80',i:['Mouse sem fio','Carregador portátil','Caixinha de som']},
+ {k:'papelaria',n:'Papelaria',c:'#a0522d',i:['Caderno','Agenda 2027','Canetas coloridas']}];
+const CAT=Object.fromEntries(CATS.map(c=>[c.k,c]));
+const G='<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+
+const giftSVG=`<svg class="gift" viewBox="0 0 300 220" aria-hidden="true">
+  <ellipse cx="150" cy="206" rx="104" ry="11" fill="#5a0d18" opacity=".55"/>
+  <rect x="58" y="96" width="184" height="108" rx="10" fill="#1f5c46"/>
+  <rect x="58" y="96" width="184" height="18" fill="#174a38"/>
+  <rect x="58" y="96" width="10" height="108" rx="5" fill="#2c7a5d" opacity=".7"/>
+  <rect x="44" y="70" width="212" height="36" rx="10" fill="#26704f"/>
+  <rect x="44" y="70" width="212" height="8" rx="4" fill="#3b8f69" opacity=".8"/>
+  <rect x="136" y="70" width="28" height="134" fill="#f2b84b"/>
+  <rect x="136" y="70" width="8" height="134" fill="#ffd98a"/>
+  <path d="M150 70c-30-38-66-34-62-12 3 16 40 14 62 12zM150 70c30-38 66-34 62-12-3 16-40 14-62 12z" fill="#f2b84b"/>
+  <path d="M150 70c-22-26-48-26-50-14M150 70c22-26 48-26 50-14" stroke="#ffd98a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="150" cy="70" r="11" fill="#e0a033"/>
+  <path d="M164 120l46 22" stroke="#f2b84b" stroke-width="2.5"/>
+  <g transform="rotate(14 222 150)"><rect x="196" y="132" width="54" height="38" rx="7" fill="#fbf6f1"/><circle cx="204" cy="151" r="4" fill="#9e1b2e"/>
+  <text x="228" y="162" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="28" fill="#9e1b2e">?</text></g>
+</svg>`;
+
+const ICON={
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M2 9h20M12 9v12M12 9c-2-4-6-5-6-2s4 2 6 2c2 0 6 1 6-2s-4-2-6 2"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+  intim:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  perfil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  admin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4 1.3 4.8 4"/></svg>',
+  sair:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 16l-4-4 4-4M6 12h10"/></svg>'
+};
+
+function snow(){let h='';for(let i=0;i<26;i++){const l=Math.random()*100,d=6+Math.random()*7,dl=-Math.random()*12,s=3+Math.random()*5;h+=`<i style="left:${l}%;width:${s}px;height:${s}px;animation-duration:${d}s;animation-delay:${dl}s"></i>`}return `<div class="snow">${h}</div>`}
+
+
+// Nome da turma e ano que aparecem no site.
+const EVENTO = { grupo: 'Turma do fim de ano', ano: 2026 };
+document.title = `Amigo Oculto ${EVENTO.ano}`;
+// Regras do jogo. MIN_PARTICIPANTS e MIN_CIRCLE precisam bater com scripts/sorteio.js.
+const MAX_ADM = 3, MAX_USERS = 20, MIN_CIRCLE = 5, MAX_CATS = 5, MIN_PARTICIPANTS = 10;
+const LV = ['Nenhuma', 'Média', 'Muita'];
+const COLORS = ['#9e1b2e','#1f5c46','#c27a12','#2f5fa8','#7b3d8f','#b8462e','#2b7a78','#5b6b2f'];
+const LOCK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const catIc = c => `<i style="background:${c.c}">${c.n[0]}</i>`;
+
+const S = { phase: 'loading', authTab: 'entrar', err: '', info: '', tab: 'amigo', open: null, q: '', draft: {}, busy: '',
+  user: null, cfg: null, me: null, people: {}, intim: {}, test: null, result: null, recv: null, position: null,
+  users: {}, audit: null, revealed: false, confirmFinal: false, anim: false };
+let unsubs = [];
+const app = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hash = s => [...String(s)].reduce((a, c) => a + c.charCodeAt(0), 0);
+const col = uid => COLORS[hash(uid) % COLORS.length];
+const ini = n => esc((n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase());
+const first = n => esc((n || '').split(' ')[0]);
+const fmt = t => t?.toDate ? t.toDate().toLocaleDateString('pt-BR') : '—';
+const toast = t => { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('on'), 2200); };
+const lower = s => String(s || '').trim().toLowerCase();
+const isAdmin = () => !!S.cfg && (S.cfg.admins || []).includes(lower(S.user?.email));
+const locked = () => !!S.cfg?.finalLocked;
+const others = () => Object.entries(S.people).filter(([id]) => id !== S.user.uid);
+const rated = () => others().filter(([id]) => typeof S.intim[id] === 'number').length;
+const circle = () => others().filter(([id]) => S.intim[id] >= 1).length;
+const ready = () => rated() === others().length && circle() >= MIN_CIRCLE;
+const filled = u => (u.cats || []).length > 0 && u.camisa && u.calcado;
+const dv = (id, fb) => S.draft[id] ?? fb ?? '';
+const errMsg = e => ({ 'auth/invalid-credential': 'E-mail ou senha incorretos.', 'auth/wrong-password': 'E-mail ou senha incorretos.', 'auth/user-not-found': 'E-mail ou senha incorretos.',
+  'auth/email-already-in-use': 'Esse e-mail já tem conta. Tenta entrar.', 'auth/weak-password': 'A senha precisa de pelo menos 6 caracteres.',
+  'auth/invalid-email': 'Coloca um e-mail válido.', 'auth/popup-closed-by-user': 'Login cancelado.', 'auth/too-many-requests': 'Muitas tentativas. Espera um pouco.',
+  'permission-denied': 'Sem permissão pra isso.' }[e.code] || e.message || 'Deu ruim. Tenta de novo.');
+
+/* ---------------- Telas de entrada ---------------- */
+function viewLogin() {
+  const cad = S.authTab === 'criar';
+  return `
+  <section class="hero">${snow()}
+    <div class="brand"><span>${esc(EVENTO.grupo)}</span><span>${EVENTO.ano}</span></div>
+    <h1>Amigo Oculto</h1>
+    <p>Entra, monta teu perfil e conta do que tu gostas.</p>
+    ${giftSVG}
+  </section>
+  <section class="auth">
+    <div class="tabs" role="tablist">
+      <button class="${cad ? '' : 'on'}" data-auth="entrar" role="tab" aria-selected="${!cad}">Entrar</button>
+      <button class="${cad ? 'on' : ''}" data-auth="criar" role="tab" aria-selected="${cad}">Criar conta</button>
+    </div>
+    <button class="btn ghost" id="google" ${S.busy ? 'disabled' : ''}>${G} ${cad ? 'Cadastrar' : 'Entrar'} com Google</button>
+    <div class="sep">ou com e-mail</div>
+    <form id="authForm" style="display:flex;flex-direction:column;gap:12px" novalidate>
+      ${cad ? `<div><label for="fNome">Nome</label><input id="fNome" autocomplete="name" placeholder="Como a turma te chama" value="${esc(dv('fNome'))}"></div>` : ''}
+      <div><label for="fEmail">E-mail</label><input id="fEmail" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" value="${esc(dv('fEmail'))}"></div>
+      <div><label for="fSenha">Senha</label><input id="fSenha" type="password" autocomplete="${cad ? 'new-password' : 'current-password'}" placeholder="${cad ? 'Mínimo 6 caracteres' : 'Tua senha'}"></div>
+      <p class="err" role="alert">${esc(S.err)}</p>${S.info ? `<p class="ok" style="font-size:14px">${esc(S.info)}</p>` : ''}
+      <button class="btn pri" type="submit" ${S.busy ? 'disabled' : ''}>${S.busy ? 'Aguarda...' : cad ? 'Criar minha conta' : 'Entrar'}</button>
+      ${cad ? '' : '<button type="button" class="btn ghost small" style="align-self:center;border:0" data-reset-pass>Esqueci a senha</button>'}
+    </form>
+    <p class="demo">Só entra quem foi liberado pelos admins. Se abrir pelo Instagram e o Google travar, abre no navegador do celular.</p>
+  </section>`;
+}
+function viewMsg(title, body, btns = '') {
+  return `<section class="hero" style="padding-bottom:26px">${snow()}<div class="brand"><span>Amigo Oculto</span><span>${EVENTO.ano}</span></div><h1 style="font-size:34px">${title}</h1></section>
+  <section class="auth"><p class="lead">${body}</p>${btns}<button class="btn ghost" data-logout>Sair</button></section>`;
+}
+
+/* ---------------- App ---------------- */
+function topBar() {
+  const n = S.me?.apelido || S.me?.nome || S.user.displayName || '';
+  return `<header class="top"><div class="av" style="background:${col(S.user.uid)};box-shadow:0 0 0 3px #fff3">${ini(S.me?.nome || n)}</div>
+  <div class="t"><h3>Oi, ${first(n) || 'pessoa'}!</h3><small>${isAdmin() ? 'Administrador' : 'Participante'} · Amigo Oculto ${EVENTO.ano}</small></div><button class="out" data-logout aria-label="Sair">${ICON.sair}</button></header>`;
+}
+function catsHTML(r, cls) {
+  const cs = r.cats || [];
+  return cs.length ? cs.map(x => { const c = CAT[x.k]; if (!c) return ''; return `<div class="${cls}"><b>${catIc(c)}${esc(c.n)}</b><div class="chips">${(x.it || []).length ? x.it.map(t => `<span class="chip ro">${esc(t)}</span>`).join('') : '<span class="note">Sem detalhes, qualquer coisa da categoria</span>'}</div></div>`; }).join('') : '<p class="note" style="text-align:left">Ainda não escolheu categorias.</p>';
+}
+const checksHTML = (cs, anim) => `<ul class="checks ${anim ? 'anim' : ''}">${(cs || []).map((c, i) => `<li style="animation-delay:${i * .3}s"><span class="ic ${c.ok ? '' : 'x'}">${c.ok ? '✓' : '!'}</span><span>${esc(c.txt)}</span></li>`).join('')}</ul>`;
+const chainHTML = ch => `<ol class="chain">${ch.map((n, i) => `<li><span class="num">${i + 1}</span><b>${esc(n)}</b><span class="arr">→ entrega pra ${esc(ch[(i + 1) % ch.length])}</span></li>`).join('')}</ol>`;
+
+// Card próprio da posição na corrente: aparece fora do perfil do amigo oculto, mesmo sem revelar.
+function posCard() {
+  if (!S.result) return '';
+  const p = S.position;
+  if (!p) return `<div class="poscard wait"><div class="big">?</div><div><h3>Tua vez na corrente</h3><p>Teu número aparece aqui quando os admins liberarem, no dia da festa.</p></div></div>`;
+  const prev = p.pos === 1 ? p.total : p.pos - 1;
+  return `<div class="poscard"><div class="big">${p.pos}</div><div><h3>Tu és o nº ${p.pos} de ${p.total}</h3>
+    <p>${p.pos === 1 ? 'Tu abres a entrega: começa entregando o teu presente.' : `Espera o nº ${prev} te entregar o presente. Aí é tua vez de entregar o teu.`}</p></div></div>`;
+}
+
+function viewAmigo() {
+  const r = S.result, R = S.recv;
+  if (!r && S.test) return `<main><div class="reveal"><span class="testtag">Teste nº ${S.test.no} · não vale!</span><h2>Corrente de teste</h2>
+    <p class="lead">Os admins estão testando o sorteio. Confere: todo mundo entra, ninguém tira a si mesmo e a roda fecha. O oficial vem depois e é secreto.</p>${chainHTML(S.test.chain || [])}</div>
+    <div class="card"><h3>Enquanto isso</h3><p class="lead" style="font-size:15px;margin:6px 0 12px">Escolhe teus gostos e marca tua intimidade com a galera.</p><button class="btn pri" data-tab="gostos">Escolher meus gostos</button></div></main>`;
+  if (!r) return `<main><div class="reveal"><h3>Sorteio ainda não aconteceu</h3><p class="lead">Enquanto isso, escolhe teus gostos, completa o perfil e marca tua intimidade com a galera.</p><button class="btn" data-tab="gostos">Escolher meus gostos</button></div></main>`;
+  if (!S.revealed) return `<main>${posCard()}<div class="reveal"><span class="lock" style="background:#ffffff26">${LOCK}Sorteio oficial</span><h2>O sorteio saiu!</h2><p class="lead">Esse é o oficial, não muda mais. Confere num lugar onde ninguém esteja espiando a tua tela.</p><button class="btn" data-reveal>Revelar quem eu tirei</button></div></main>`;
+  if (!R) return `<main><div class="reveal"><p class="lead">Carregando...</p></div></main>`;
+  return `<main>${posCard()}<div class="reveal"><span class="lock" style="background:#ffffff26">${LOCK}Sorteio oficial</span><h2 style="font-size:22px">Meu amigo oculto</h2><p class="lead">Teu código <span class="code">${esc(r.code)}</span></p>
+    <div style="display:flex;gap:14px;align-items:center"><div class="av lg" style="background:${col(r.receiver)};box-shadow:0 0 0 3px #fff4">${ini(R.nome)}</div>
+    <div><h2>${esc(R.nome)}</h2><div class="meta"><span class="tag">${LV[r.level] || ''} intimidade</span></div></div></div>
+    <dl class="kv"><dt>Camisa</dt><dd>${esc(R.camisa) || '—'}</dd><dt>Calçado</dt><dd>${esc(R.calcado) || '—'}</dd><dt>Não curte</dt><dd>${esc(R.nao) || '—'}</dd><dt>Recado</dt><dd>${esc(R.obs) || '—'}</dd></dl>
+    <div><h3 style="margin-bottom:4px">Do que gosta</h3>${catsHTML(R, 'gcat')}</div>
+    <button class="btn" data-hide>Esconder</button></div></main>`;
+}
+
+function viewGostos() {
+  const cats = S.me.cats || [], sel = cats.map(x => x.k), full = sel.length >= MAX_CATS;
+  return `<main><h2>Meus gostos</h2>
+  <p class="lead">Escolhe até ${MAX_CATS} categorias e conta o que tu curtes em cada uma. Quanto mais específico, melhor: "camisa do Homem-Aranha" ajuda mais que "roupa".</p>
+  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;font-weight:700"><span>Categorias</span><span class="${sel.length ? 'ok' : 'bad'}">${sel.length} de ${MAX_CATS}</span></div>
+    <div class="cats">${CATS.map(c => { const on = sel.includes(c.k); return `<button class="cat ${on ? 'on' : ''}" data-cat="${c.k}" aria-pressed="${on}" ${!on && full ? 'disabled' : ''}>${catIc(c)}${esc(c.n)}</button>`; }).join('')}</div>
+    ${full ? '<p class="note">Limite de 5. Desmarca uma pra trocar.</p>' : ''}
+  </div>
+  ${cats.map(x => { const c = CAT[x.k]; if (!c) return ''; const ideas = c.i.filter(t => !x.it.includes(t)); return `<div class="card det">
+    <h3>${catIc(c)}${esc(c.n)}</h3>
+    <div class="row"><input id="it-${c.k}" data-item="${c.k}" placeholder="Ex.: ${esc(c.i[0])}" maxlength="60" value="${esc(dv('it-' + c.k))}"><button class="btn pri small" data-add="${c.k}">Add</button></div>
+    <div class="chips">${x.it.length ? x.it.map((t, i) => `<span class="chip">${esc(t)}<button data-rmit="${c.k}" data-i="${i}" aria-label="Remover ${esc(t)}">×</button></span>`).join('') : '<span class="note">Nada ainda. Escreve ou toca numa ideia abaixo.</span>'}</div>
+    ${ideas.length ? `<div class="ideas">Ideias:${ideas.map(t => `<button class="idea" data-idea="${c.k}" data-t="${esc(t)}">+ ${esc(t)}</button>`).join('')}</div>` : ''}
+  </div>`; }).join('')}</main>`;
+}
+
+function viewIntim() {
+  const tot = others().length, n = rated(), c = circle(), low = c < MIN_CIRCLE, L = locked();
+  return `<main><h2>Intimidade</h2>
+  ${L ? `<div class="card"><span class="lock">${LOCK}Trancado</span><p class="lead" style="font-size:15px;margin-top:8px">O sorteio oficial já aconteceu, então as intimidades não mudam mais.</p></div>` : ''}
+  <p class="lead">Marca o quanto tu conheces cada pessoa. O sorteio só te dá alguém com <b>muita</b> ou <b>média</b> intimidade, e só tu vês essas respostas.</p>
+  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;gap:10px;font-weight:700"><span>Teu círculo</span><span class="${low ? 'bad' : 'ok'}">${c} ${c === 1 ? 'pessoa' : 'pessoas'} · mínimo ${MIN_CIRCLE}</span></div>
+    <div class="meter ${low ? 'low' : ''}"><i style="width:${Math.min(100, c / MIN_CIRCLE * 100)}%"></i></div>
+    <p class="note" style="text-align:left">${n} de ${tot} avaliados${low ? ' · marca mais gente como muita ou média pra o sorteio não ficar previsível' : ''}</p>
+  </div>
+  <div class="legend"><span><i style="background:var(--red)"></i>Muita: prioridade no sorteio</span><span><i style="background:var(--gold)"></i>Média: pode sair</span><span><i style="background:var(--muted)"></i>Nenhuma: não sai</span></div>
+  ${tot ? others().sort((a, b) => (a[1].nome || '').localeCompare(b[1].nome || '')).map(([id, p]) => { const v = S.intim[id]; return `<div class="rate"><div class="who"><div class="av" style="background:${col(id)}">${ini(p.nome)}</div><b>${esc(p.nome)}</b></div>
+    <div class="seg" role="group" aria-label="Intimidade com ${esc(p.nome)}">${[2, 1, 0].map(k => `<button data-rate="${id}" data-v="${k}" class="${v === k ? 'on' : ''}" aria-pressed="${v === k}" ${L ? 'disabled' : ''}>${LV[k]}</button>`).join('')}</div></div>`; }).join('') : '<p class="note">Ninguém mais se cadastrou ainda.</p>'}
+  </main>`;
+}
+
+function viewPerfil() {
+  const u = S.me;
+  return `<main>
+  <div class="card" style="display:flex;gap:14px;align-items:center">
+    <div class="av lg" style="background:${col(S.user.uid)}">${ini(u.nome)}</div>
+    <div><h2>${esc(u.nome) || 'Sem nome'}</h2><div class="meta"><span class="tag ${u.metodo === 'google' ? 'g' : 'e'}">${u.metodo === 'google' ? 'Google' : 'E-mail e senha'}</span>${isAdmin() ? '<span class="tag adm">Admin</span>' : ''}</div></div>
+  </div>
+  <form id="perfilForm" class="card" style="display:flex;flex-direction:column;gap:14px">
+    <h3>Meu perfil</h3>
+    <div class="field"><label for="pNome">Nome</label><input id="pNome" maxlength="60" value="${esc(dv('pNome', u.nome))}"></div>
+    <div class="field"><label for="pApelido">Apelido</label><input id="pApelido" maxlength="30" value="${esc(dv('pApelido', u.apelido))}" placeholder="Opcional"></div>
+    <div class="grid2">
+      <div class="field"><label for="pCamisa">Camisa</label><select id="pCamisa">${['', 'PP', 'P', 'M', 'G', 'GG', 'XG'].map(t => `<option ${dv('pCamisa', u.camisa) === t ? 'selected' : ''} value="${t}">${t || 'Escolher'}</option>`).join('')}</select></div>
+      <div class="field"><label for="pCalcado">Calçado</label><input id="pCalcado" inputmode="numeric" maxlength="4" value="${esc(dv('pCalcado', u.calcado))}" placeholder="Ex.: 39"></div>
+    </div>
+    <div class="field"><label for="pNao">Não curto / evitar</label><input id="pNao" maxlength="120" value="${esc(dv('pNao', u.nao))}" placeholder="Ex.: nada de chocolate"></div>
+    <div class="field"><label for="pObs">Recado pro amigo oculto</label><textarea id="pObs" maxlength="400" placeholder="Dicas, cores preferidas...">${esc(dv('pObs', u.obs))}</textarea></div>
+    <button class="btn pri" type="submit">Salvar perfil</button>
+  </form></main>`;
+}
+
+// O sorteio roda no GitHub Actions do repo; aqui só o atalho e o passo a passo.
+const runSteps = acao => `<ol class="steps"><li>Abre o workflow <b>Sorteio</b> no GitHub</li><li>Toca em <b>Run workflow</b></li><li>Escolhe <b>${acao}</b>${acao === 'oficial' ? ' e digita <b>OFICIAL</b> na confirmação' : ''}</li><li>Volta aqui: o resultado aparece sozinho em ~1 min</li></ol>
+  <a class="btn ${acao === 'oficial' ? 'pri' : 'ghost'}" href="${ACTIONS_URL}" target="_blank" rel="noopener">Abrir no GitHub</a>`;
+function drawCard() {
+  const anim = S.anim; S.anim = false;
+  const allowed = S.cfg.allowed || [], us = Object.entries(S.people);
+  const regEmails = Object.values(S.users).map(u => lower(u.email));
+  const notReg = allowed.filter(e => !regEmails.includes(e));
+  const pend = us.filter(([, p]) => !p.ready);
+  if (locked()) {
+    const A = S.audit;
+    return `<div class="card" style="display:flex;flex-direction:column;gap:14px">
+      <span class="lock">${LOCK}Sorteio oficial · trancado</span>
+      <p class="lead" style="font-size:14px">Feito em ${fmt(S.cfg.drawAt)}${A ? `, depois de ${A.testNo} ${A.testNo === 1 ? 'teste' : 'testes'}` : ''}. Ninguém, nem admin, consegue refazer ou ver quem tirou quem pelo site.</p>
+      <div class="reveal" style="padding:16px;gap:8px"><p class="lead" style="font-size:14px">Quem abre a corrente</p><h3>${esc(S.cfg.starterName)} · nº 1</h3>
+        <p class="lead" style="font-size:14px">Entrega o primeiro presente. O último da corrente entrega pra ${first(S.cfg.starterName)}, fechando a roda.</p></div>
+      ${S.cfg.orderOpen ? '<p class="ok">Números da corrente liberados pra galera.</p>' : `<h3>Liberar números (só no dia da festa)</h3>${runSteps('liberar-numeros')}<p class="note" style="text-align:left">Não dá pra desfazer. Se dois amigos compararem os números antes, o nº 5 sabe que tirou o nº 6.</p>`}
+      ${A ? `<h3>Auditoria anônima</h3>${checksHTML(A.checks, anim)}<p style="font-weight:800" class="${A.checks.every(c => c.ok) ? 'ok' : 'bad'}">${A.checks.every(c => c.ok) ? 'Sorteio oficial válido' : 'Problema no sorteio oficial'}</p>
+      <button class="btn ghost" data-audit>Rodar auditoria de novo</button>
+      <details><summary style="font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:center">Ver os ${A.pairs.length} pares por código</summary>
+        <div class="pairs" style="margin-top:8px">${A.pairs.map(p => `<div class="pair"><span class="code">${esc(p.g)}</span><span class="arr">→</span><span class="code">${esc(p.r)}</span><span class="tag ${p.lv === 'Muita' ? 'adm' : 'warn'}">${esc(p.lv)}</span></div>`).join('')}</div></details>
+      <details><summary style="font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:center">Ver a corrente por código</summary>
+        <div class="cyc" style="margin-top:8px">${[...A.chain, A.chain[0]].map(c => `<span class="code">${esc(c)}</span>`).join('<span class="arr">→</span>')}</div></details>` : '<p class="note">Carregando auditoria...</p>'}
+    </div>`;
+  }
+  const T = S.test, enough = us.length >= MIN_PARTICIPANTS, canFinal = !pend.length && !notReg.length && enough;
+  return `<div class="card" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;gap:10px;font-weight:700"><span>Prontos pro sorteio</span><span>${us.length - pend.length} de ${allowed.length}</span></div>
+    <div class="meter ${pend.length || notReg.length ? 'low' : ''}"><i style="width:${allowed.length ? (us.length - pend.length) / allowed.length * 100 : 0}%"></i></div>
+    ${pend.length ? `<p class="lead" style="font-size:14px">Faltam avaliar a intimidade ou chegar a ${MIN_CIRCLE} no círculo:</p><div class="pend">${pend.map(([, p]) => `<span class="chip ro">${first(p.nome) || 'Sem nome'}</span>`).join('')}</div>` : ''}
+    ${notReg.length ? `<p class="lead" style="font-size:14px">Liberados que ainda não se cadastraram:</p><div class="pend">${notReg.map(e => `<span class="chip ro">${esc(e)}</span>`).join('')}</div>` : ''}
+    <div class="sec">
+      <span class="testtag">Sorteio de teste</span>
+      <p class="lead" style="font-size:14px">Não vale. Todo mundo vê a corrente com nomes. Roda quantas vezes quiser. Não usa as intimidades, pra não expor quem marcou quem.</p>
+      ${runSteps('teste')}
+      ${T ? `<h3>Teste nº ${T.no} · ${fmt(T.at)}</h3>${checksHTML(T.checks, anim)}<p style="font-weight:800" class="${T.checks.every(c => c.ok) ? 'ok' : 'bad'}">${T.checks.every(c => c.ok) ? 'Teste válido' : 'Teste com problema'}</p>
+      <details><summary style="font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:center">Ver a corrente do teste</summary><div style="margin-top:8px">${chainHTML(T.chain || [])}</div></details>` : ''}
+    </div>
+    <div class="sec">
+      <span class="lock">${LOCK}Sorteio oficial</span>
+      <p class="lead" style="font-size:14px">Acontece uma vez só, com as intimidades valendo. Depois disso ninguém mexe: sem refazer, sem ver nomes, sem adicionar ou remover gente.</p>
+      <div style="display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:15px"><span>Participantes cadastrados</span><span class="${enough ? 'ok' : 'bad'}">${us.length} · mínimo ${MIN_PARTICIPANTS}</span></div>
+      ${!canFinal ? `<p style="font-size:14px"><span class="bad">Ainda não dá:</span> ${!enough ? `precisa de pelo menos ${MIN_PARTICIPANTS} pessoas cadastradas, pra cada um ter ${MIN_CIRCLE} opções no círculo e o sorteio não ficar previsível. ` : ''}Todo mundo liberado precisa se cadastrar, avaliar a intimidade com todos e ter pelo menos ${MIN_CIRCLE} no círculo.</p>` : ''}
+      ${canFinal ? runSteps('oficial') : ''}
+    </div>
+  </div>`;
+}
+
+function viewAdmin() {
+  const allowed = S.cfg.allowed || [], admins = S.cfg.admins || [];
+  const list = Object.entries(S.users).filter(([, u]) => { const q = S.q.toLowerCase(); return !q || (u.nome + ' ' + u.email + ' ' + (u.apelido || '')).toLowerCase().includes(q); })
+    .sort((a, b) => (a[1].nome || '').localeCompare(b[1].nome || ''));
+  const regEmails = Object.values(S.users).map(u => lower(u.email));
+  const waiting = allowed.filter(e => !regEmails.includes(e));
+  return `<main>
+  <h2>Sorteio</h2>${drawCard()}
+  <h2>Participantes</h2>
+  <div class="stats">
+    <div class="stat"><b>${allowed.length}<small style="font-size:15px;color:var(--muted)">/${MAX_USERS}</small></b><span>Liberados</span></div>
+    <div class="stat"><b>${Object.values(S.users).filter(filled).length}</b><span>Perfis completos</span></div>
+    <div class="stat"><b>${admins.length}<small style="font-size:15px;color:var(--muted)">/${MAX_ADM}</small></b><span>Admins</span></div>
+  </div>
+  <input id="q" type="search" placeholder="Buscar por nome ou e-mail" aria-label="Buscar" value="${esc(S.q)}">
+  <ul class="people">${list.map(([id, u]) => `<li><button class="person" data-open="${id}">
+    <div class="av" style="background:${col(id)}">${ini(u.nome)}</div>
+    <div class="n"><b>${esc(u.nome) || 'Sem nome'}</b><span>${esc(u.email)}</span>
+      <div class="meta"><span class="tag ${u.metodo === 'google' ? 'g' : 'e'}">${u.metodo === 'google' ? 'Google' : 'E-mail'}</span>${admins.includes(lower(u.email)) ? '<span class="tag adm">Admin</span>' : ''}${filled(u) ? '' : '<span class="tag warn">Perfil incompleto</span>'}</div></div>
+  </button></li>`).join('') || '<p class="note">Ninguém encontrado.</p>'}</ul>
+  ${waiting.length ? `<div class="card" style="display:flex;flex-direction:column;gap:10px"><h3>Aguardando cadastro</h3>${waiting.map(e => `<div class="pair"><span style="overflow-wrap:anywhere">${esc(e)}</span>${locked() ? '' : `<button class="btn ghost small" style="margin-left:auto" data-unallow="${esc(e)}">Tirar</button>`}</div>`).join('')}</div>` : ''}
+  ${locked() ? '' : `<form id="allowForm" class="card" style="display:flex;flex-direction:column;gap:12px">
+    <h3>Liberar e-mail</h3><p class="lead" style="font-size:14px">Só quem estiver nessa lista consegue entrar. Usa o mesmo e-mail que a pessoa vai usar no login (Gmail, se for entrar com Google).</p>
+    <input id="nEmail" type="email" inputmode="email" placeholder="email@exemplo.com" value="${esc(dv('nEmail'))}">
+    <button class="btn ghost" type="submit" ${allowed.length >= MAX_USERS ? 'disabled' : ''}>Liberar</button>
+  </form>`}
+  </main>`;
+}
+
+function sheet(id) {
+  const u = S.users[id]; if (!u) return '';
+  const admins = S.cfg.admins || [], adm = admins.includes(lower(u.email)), self = id === S.user.uid;
+  return `<div class="veil" id="veil"><div class="sheet" role="dialog" aria-modal="true" aria-label="Perfil de ${esc(u.nome)}">
+    <div class="grab"></div>
+    <div style="display:flex;gap:14px;align-items:center"><div class="av lg" style="background:${col(id)}">${ini(u.nome)}</div>
+      <div><h2>${esc(u.nome)}</h2><div class="meta"><span class="tag ${u.metodo === 'google' ? 'g' : 'e'}">${u.metodo === 'google' ? 'Login com Google' : 'Login com e-mail e senha'}</span>${adm ? '<span class="tag adm">Admin</span>' : ''}</div></div></div>
+    <dl class="kv card">
+      <dt>E-mail</dt><dd>${esc(u.email)}</dd><dt>Apelido</dt><dd>${esc(u.apelido) || '—'}</dd><dt>Camisa</dt><dd>${esc(u.camisa) || '—'}</dd>
+      <dt>Calçado</dt><dd>${esc(u.calcado) || '—'}</dd><dt>Não curte</dt><dd>${esc(u.nao) || '—'}</dd><dt>Recado</dt><dd>${esc(u.obs) || '—'}</dd>
+      <dt>Último acesso</dt><dd>${fmt(u.acesso)}</dd>
+    </dl>
+    <div><h3 style="margin-bottom:8px">Gostos (${(u.cats || []).length}/${MAX_CATS})</h3>${catsHTML(u, 'sheetcat')}</div>
+    <p class="note">${S.people[id]?.ready ? 'Pronto pro sorteio' : 'Ainda não terminou a intimidade'} · as respostas de intimidade são privadas.</p>
+    ${self ? '<p class="note">Este é o teu perfil.</p>' : `
+    <button class="btn ghost" data-adm="${id}" ${!adm && admins.length >= MAX_ADM ? 'disabled' : ''}>${adm ? 'Remover de admin' : (admins.length >= MAX_ADM ? 'Limite de 3 admins atingido' : 'Tornar admin')}</button>
+    ${locked() ? '' : `<button class="btn ghost danger" data-del="${id}">${S.delConfirm === id ? 'Toca de novo pra remover' : 'Remover participante'}</button>`}`}
+    <button class="btn pri" data-close>Fechar</button>
+  </div></div>`;
+}
+
+function render() {
+  const a = document.activeElement, aid = a && a.id, sel = aid && a.setSelectionRange ? [a.selectionStart, a.selectionEnd] : null;
+  if (S.phase === 'loading') app.innerHTML = viewMsg('Carregando...', 'Só um instante.');
+  else if (S.phase === 'login') app.innerHTML = viewLogin();
+  else if (S.phase === 'verify') app.innerHTML = viewMsg('Confirma teu e-mail', `Mandamos um link pra <b>${esc(S.user.email)}</b>. Abre, confirma e volta aqui.${S.err ? `<br><span class="bad">${esc(S.err)}</span>` : ''}`,
+    '<button class="btn pri" data-verified>Já confirmei</button><button class="btn ghost" data-resend>Reenviar e-mail</button>');
+  else if (S.phase === 'denied') app.innerHTML = viewMsg('Ainda não liberado', `O e-mail <b>${esc(S.user.email)}</b> não está na lista do amigo oculto. Pede pra um admin liberar e depois entra de novo.`);
+  else if (S.phase === 'closed') app.innerHTML = viewMsg('Inscrições fechadas', 'O sorteio oficial já aconteceu, então não dá mais pra entrar.');
+  else if (S.phase === 'app' && S.me && S.cfg) {
+    if (S.tab === 'admin' && !isAdmin()) S.tab = 'amigo';
+    const V = { admin: viewAdmin, intim: viewIntim, gostos: viewGostos, amigo: viewAmigo, perfil: viewPerfil };
+    app.innerHTML = topBar() + V[S.tab]() +
+      `<nav class="bar" aria-label="Navegação">
+       <button class="${S.tab === 'amigo' ? 'on' : ''}" data-tab="amigo">${ICON.gift}Meu amigo</button>
+       <button class="${S.tab === 'gostos' ? 'on' : ''}" data-tab="gostos">${ICON.star}Gostos</button>
+       <button class="${S.tab === 'intim' ? 'on' : ''}" data-tab="intim">${ICON.intim}Intimidade</button>
+       <button class="${S.tab === 'perfil' ? 'on' : ''}" data-tab="perfil">${ICON.perfil}Perfil</button>
+       ${isAdmin() ? `<button class="${S.tab === 'admin' ? 'on' : ''}" data-tab="admin">${ICON.admin}Admin</button>` : ''}</nav>` + (S.open ? sheet(S.open) : '');
+  } else app.innerHTML = viewMsg('Carregando...', 'Só um instante.');
+  if (aid) { const n = document.getElementById(aid); if (n) { n.focus({ preventScroll: true }); if (sel && n.setSelectionRange) try { n.setSelectionRange(sel[0], sel[1]); } catch (e) {} } }
+}
+let rq = 0; const schedule = () => { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; render(); }); };
+
+/* ---------------- Firebase: sessão e dados ---------------- */
+function stopAll() { unsubs.forEach(f => f()); unsubs = []; }
+function listen(ref, fn) { unsubs.push(onSnapshot(ref, fn, e => console.warn('listener', e.code))); }
+
+async function boot(user) {
+  stopAll();
+  Object.assign(S, { user, cfg: null, me: null, people: {}, intim: {}, test: null, result: null, recv: null, position: null, users: {}, audit: null, revealed: false, open: null, err: '', info: '', busy: '' });
+  if (!user) { S.phase = 'login'; return render(); }
+  const pass = user.providerData.some(p => p.providerId === 'password');
+  if (pass && !user.emailVerified) { S.phase = 'verify'; return render(); }
+  S.phase = 'loading'; render();
+  let cfg;
+  try { cfg = (await getDoc(doc(db, 'config/app'))).data(); }
+  catch (e) { S.phase = 'denied'; return render(); }
+  const uid = user.uid, meRef = doc(db, 'users', uid);
+  try {
+    const snap = await getDoc(meRef);
+    if (!snap.exists()) {
+      if (cfg.finalLocked) { S.phase = 'closed'; return render(); }
+      const nome = user.displayName || '';
+      await setDoc(meRef, { nome, email: lower(user.email), metodo: pass ? 'email' : 'google', apelido: '', camisa: '', calcado: '', nao: '', obs: '', cats: [], criadoEm: serverTimestamp(), acesso: serverTimestamp() });
+      await setDoc(doc(db, 'people', uid), { nome, ready: false });
+    } else updateDoc(meRef, { acesso: serverTimestamp() }).catch(() => {});
+  } catch (e) { S.phase = 'denied'; return render(); }
+  S.phase = 'app';
+  listen(doc(db, 'config/app'), s => { const was = isAdmin(); S.cfg = s.data(); if (isAdmin() && !was) adminListeners(); schedule(); });
+  listen(meRef, s => { S.me = s.data(); schedule(); });
+  listen(collection(db, 'people'), s => { S.people = Object.fromEntries(s.docs.map(d => [d.id, d.data()])); syncReady(); schedule(); });
+  listen(doc(db, 'intim', uid), s => { S.intim = s.data()?.r || {}; syncReady(); schedule(); });
+  listen(doc(db, 'tests/latest'), s => { const n = s.exists() ? s.data() : null; if (n && S.test && n.no !== S.test.no) { S.anim = true; toast('Teste nº ' + n.no + ' chegou'); } S.test = n; schedule(); });
+  listen(doc(db, 'positions', uid), s => { S.position = s.exists() ? s.data() : null; schedule(); });
+  listen(doc(db, 'results', uid), s => {
+    S.result = s.exists() ? s.data() : null;
+    if (S.result && !S.recvSub) { S.recvSub = true; listen(doc(db, 'users', S.result.receiver), r => { S.recv = r.data(); schedule(); }); }
+    schedule();
+  });
+}
+let adminOn = false;
+function adminListeners() {
+  if (adminOn) return; adminOn = true;
+  listen(collection(db, 'users'), s => { S.users = Object.fromEntries(s.docs.map(d => [d.id, d.data()])); schedule(); });
+  listen(doc(db, 'audit/final'), s => { S.audit = s.exists() ? s.data() : null; schedule(); });
+}
+// mantém people/{uid}.ready em dia (o servidor confere de novo na hora do oficial)
+let lastReady = null;
+function syncReady() {
+  if (!S.user || !S.people[S.user.uid] || locked()) return;
+  const r = ready();
+  if (r !== lastReady && r !== S.people[S.user.uid].ready) { lastReady = r; updateDoc(doc(db, 'people', S.user.uid), { ready: r }).catch(() => {}); }
+}
+onAuthStateChanged(auth, u => { adminOn = false; S.recvSub = false; lastReady = null; boot(u); });
+
+/* ---------------- Ações ---------------- */
+const saveCats = cats => updateDoc(doc(db, 'users', S.user.uid), { cats }).catch(e => toast(errMsg(e)));
+async function addItem(k) {
+  const inp = document.getElementById('it-' + k), val = (inp?.value || '').trim(); if (!val) return;
+  const cats = structuredClone(S.me.cats || []), x = cats.find(c => c.k === k);
+  if (x.it.length >= 8) return toast('Máximo de 8 itens por categoria');
+  if (!x.it.includes(val)) x.it.push(val);
+  delete S.draft['it-' + k]; S.me.cats = cats; render(); document.getElementById('it-' + k)?.focus(); saveCats(cats);
+}
+
+app.addEventListener('click', async e => {
+  const t = e.target.closest('button,#veil'); if (!t) return;
+  if (t.id === 'veil' && e.target !== t) return;
+  const d = t.dataset;
+  if (d.auth) { S.authTab = d.auth; S.err = ''; S.info = ''; render(); }
+  else if (t.id === 'google') {
+    S.err = ''; const p = new GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+    try { await signInWithPopup(auth, p); }
+    catch (er) { if (er.code === 'auth/popup-blocked' || er.code === 'auth/operation-not-supported-in-this-environment') signInWithRedirect(auth, p); else { S.err = errMsg(er); render(); } }
+  }
+  else if ('resetPass' in d) {
+    const em = lower(document.getElementById('fEmail').value);
+    if (!em) { S.err = 'Coloca teu e-mail no campo acima primeiro.'; return render(); }
+    try { await sendPasswordResetEmail(auth, em); S.err = ''; S.info = 'Se esse e-mail tiver conta, chega um link pra trocar a senha.'; } catch (er) { S.err = errMsg(er); } render();
+  }
+  else if ('verified' in d) { await reload(auth.currentUser); await auth.currentUser.getIdToken(true); if (auth.currentUser.emailVerified) boot(auth.currentUser); else { S.err = 'Ainda não aparece como confirmado. Abriu o link?'; render(); } }
+  else if ('resend' in d) { try { await sendEmailVerification(auth.currentUser); toast('E-mail reenviado'); } catch (er) { toast(errMsg(er)); } }
+  else if ('logout' in d) { stopAll(); signOut(auth); S.tab = 'amigo'; S.draft = {}; }
+  else if (d.tab) { S.tab = d.tab; render(); window.scrollTo(0, 0); }
+  else if (d.open) { S.open = d.open; render(); }
+  else if ('close' in d || t.id === 'veil') { S.open = null; render(); }
+  else if ('reveal' in d) { S.revealed = true; render(); }
+  else if ('hide' in d) { S.revealed = false; render(); }
+  else if (d.cat) {
+    const cats = structuredClone(S.me.cats || []), i = cats.findIndex(x => x.k === d.cat);
+    if (i >= 0) cats.splice(i, 1); else if (cats.length < MAX_CATS) cats.push({ k: d.cat, it: [] }); else return;
+    S.me.cats = cats; render(); saveCats(cats);
+  }
+  else if (d.add) addItem(d.add);
+  else if (d.idea) { const cats = structuredClone(S.me.cats || []), x = cats.find(c => c.k === d.idea); if (x && !x.it.includes(d.t) && x.it.length < 8) x.it.push(d.t); S.me.cats = cats; render(); saveCats(cats); }
+  else if (d.rmit) { const cats = structuredClone(S.me.cats || []), x = cats.find(c => c.k === d.rmit); x.it.splice(+d.i, 1); S.me.cats = cats; render(); saveCats(cats); }
+  else if (d.rate) {
+    if (locked()) return;
+    S.intim = { ...S.intim, [d.rate]: +d.v }; render();
+    setDoc(doc(db, 'intim', S.user.uid), { r: { [d.rate]: +d.v } }, { merge: true }).catch(er => toast(errMsg(er)));
+  }
+  else if (d.adm) {
+    const em = lower(S.users[d.adm].email), adms = S.cfg.admins || [];
+    if (adms.includes(em) && adms.length <= 1) return toast('Precisa ter pelo menos 1 admin');
+    updateDoc(doc(db, 'config/app'), { admins: adms.includes(em) ? arrayRemove(em) : arrayUnion(em) }).then(() => toast('Admins atualizados')).catch(er => toast(errMsg(er)));
+  }
+  else if (d.del) {
+    if (locked()) return;
+    if (S.delConfirm !== d.del) { S.delConfirm = d.del; toast('Toca de novo pra confirmar'); setTimeout(() => { S.delConfirm = null; }, 4000); return; }
+    const em = lower(S.users[d.del].email);
+    try {
+      await updateDoc(doc(db, 'config/app'), { allowed: arrayRemove(em), admins: arrayRemove(em) });
+      await Promise.all(['users', 'people', 'intim'].map(c => deleteDoc(doc(db, c, d.del)).catch(() => {})));
+      await deleteDoc(doc(db, 'tests/latest')).catch(() => {});
+      S.open = null; S.delConfirm = null; toast('Participante removido'); render();
+    } catch (er) { toast(errMsg(er)); }
+  }
+  else if (d.unallow) { updateDoc(doc(db, 'config/app'), { allowed: arrayRemove(d.unallow) }).catch(er => toast(errMsg(er))); }
+  else if ('audit' in d) { S.anim = true; render(); }
+});
+
+app.addEventListener('keydown', e => { if (e.target.dataset?.item && e.key === 'Enter') { e.preventDefault(); addItem(e.target.dataset.item); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.open) { S.open = null; render(); } });
+app.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'q') { S.q = t.value; render(); return; }
+  if (t.id && t.id !== 'fSenha') S.draft[t.id] = t.value;
+});
+app.addEventListener('change', e => { const t = e.target; if (t.tagName === 'SELECT' && t.id) S.draft[t.id] = t.value; });
+
+app.addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target, v = id => (document.getElementById(id)?.value || '').trim();
+  if (f.id === 'authForm') {
+    const em = lower(v('fEmail')), senha = document.getElementById('fSenha').value;
+    if (!/^\S+@\S+\.\S+$/.test(em)) { S.err = 'Coloca um e-mail válido.'; return render(); }
+    S.busy = 'auth'; S.err = ''; S.info = ''; render();
+    try {
+      if (S.authTab === 'criar') {
+        const nome = v('fNome'); if (!nome) { S.busy = ''; S.err = 'Diz teu nome.'; return render(); }
+        const cr = await createUserWithEmailAndPassword(auth, em, senha);
+        await updateProfile(cr.user, { displayName: nome });
+        await sendEmailVerification(cr.user);
+        boot(cr.user);
+      } else await signInWithEmailAndPassword(auth, em, senha);
+    } catch (er) { S.err = errMsg(er); }
+    S.busy = ''; S.draft = {}; render();
+  } else if (f.id === 'perfilForm') {
+    const data = { nome: v('pNome') || S.me.nome, apelido: v('pApelido'), camisa: v('pCamisa'), calcado: v('pCalcado'), nao: v('pNao'), obs: v('pObs') };
+    try {
+      await updateDoc(doc(db, 'users', S.user.uid), data);
+      await updateDoc(doc(db, 'people', S.user.uid), { nome: data.nome });
+      ['pNome', 'pApelido', 'pCamisa', 'pCalcado', 'pNao', 'pObs'].forEach(k => delete S.draft[k]);
+      toast('Perfil salvo!');
+    } catch (er) { toast(errMsg(er)); }
+  } else if (f.id === 'allowForm') {
+    const em = lower(v('nEmail'));
+    if (!/^\S+@\S+\.\S+$/.test(em)) return toast('Coloca um e-mail válido');
+    if ((S.cfg.allowed || []).includes(em)) return toast('Esse e-mail já está liberado');
+    try { await updateDoc(doc(db, 'config/app'), { allowed: arrayUnion(em) }); delete S.draft.nEmail; toast(em + ' liberado'); render(); }
+    catch (er) { toast(errMsg(er)); }
+  }
+});
+
+render();
+
+</script>
+</body>
+</html>
