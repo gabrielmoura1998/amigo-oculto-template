@@ -1,0 +1,37 @@
+name: Sorteio
+
+on:
+  workflow_dispatch:
+    inputs:
+      acao:
+        description: 'O que fazer'
+        required: true
+        type: choice
+        options:
+          - teste
+          - oficial
+          - liberar-numeros
+      confirmacao:
+        description: 'Só pro oficial: digita OFICIAL'
+        required: false
+        default: ''
+
+concurrency:
+  group: sorteio
+  cancel-in-progress: false
+
+jobs:
+  sortear:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: scripts
+      - run: node scripts/sorteio.js "$ACAO" "$CONF"
+        env:
+          ACAO: ${{ inputs.acao }}
+          CONF: ${{ inputs.confirmacao }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
